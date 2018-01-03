@@ -1,0 +1,352 @@
+<!doctype html>
+<html ng-app="App">
+   <head>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="/public/js/jquery.mask.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
+      
+       
+        <style>
+               
+                body{
+                  background: #00c853;
+                  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+                }
+              
+                h4{
+                  color: #558b2f;
+                  text-align: left;
+              
+              
+                }
+              
+                @media (min-width: 1200px) {
+                  .container{
+                      max-width: 990px;
+                  }
+                }
+
+                
+       </style>
+
+
+     
+   </head>
+
+   <body>
+    <div class="container" ng-controller="produtoCtrl">
+       <div class="card-panel" style="background: #aed581;">
+            <h4 class="white-text">{{tituloApp}}</h4>
+             <div class="card-panel" >
+                 <div class="row">
+                    <!-- Begin Form -->
+                    <form class="col s12" name="produtoForm">
+                                              
+                        <div class="input-field col s6">
+                                    <input id="produto.titulo" type="text" class="validate" ng-model ="produto.titulo" placeholder="Nome do Produto" required="required">
+                                    <label class="active" for="produto.titulo">Nome do Produto:</label>
+                       </div>
+
+                       <div class="input-field col s3">
+                            <input id='produto.preco' type="text"  ng-model ="produto.preco" placeholder="Informe o preço" required="required" pattern="^\d+(\.\d{1,2})?$"  valid-number >
+                            <label class="active" for="produto.preco">Preço(R$)</label>
+                        </div>   
+
+                        <div class="input-field col s3">
+                                <input id='produto.precodolar' type="text"  ng-bind ="produto.preco" placeholder="Preço em Dolar" required="required" pattern="^\d+(\.\d{1,2})?$" readonly="readonly">
+                                <label class="active" for="produto.precodolar">Preço em Dólar($)</label>
+                        </div>
+                                        
+                                                                                           
+                        <div class="input-field col s12">
+                                    <textarea id="textarea" class="materialize-textarea" ng-model="produto.descricao" placeholder="Descrição do Produto" required="required"></textarea>
+                                    <label for="textarea">Descrição:</label>
+                       </div>
+
+                       
+                       <div class="input-field col s12">
+                            <select ng-model="produto.categoria" id="select">
+                              <option value="" disabled>Selecione</option>                                
+                              <option ng-repeat="c in categorias" value="{{c.value}}">{{c.label}}</option>
+                            </select>
+                            <label>Categoria:</label>
+                        
+                      </div>
+
+                       
+                   
+                                        
+                        <div class="input-field col s12">
+                                    <div class="file-field input-field">
+                                        <div class="btn waves-effect waves-light  light-green lighten-3 green-text">
+                                        <span>adicionar imagem...</span>
+                                        <input type="file" id="file">
+                                        </div>
+                                        <div class="file-path-wrapper">
+                                        <input class="file-path validate" type="text" id="file-path">
+                                        </div>
+                                    </div>
+                        </div>
+                                
+                        <div class="input-field col ">
+                                <button class="btn waves-effect waves-light" style="background:#8bc34a;" ng-click="submit()" ng-disabled="produtoForm.$invalid">Registrar</button> 
+                                <button class="btn waves-effect waves-light" style="background:#4caf50;" ng-click="cleaner()">Limpar</button>
+                                
+                        </div>
+                       
+                         </form>
+
+                         <!-- end Form -->
+
+                         </hr>
+                                
+                      
+                                
+                           
+                    </div>  
+                   
+                
+                
+                {{produto}}
+            </div>
+
+            <div class="card-panel">
+
+                <div class="row">
+                        <button class="waves-effect waves-light btn white grey-text" ng-click="removerSelecionados(produtos)"><i class="material-icons left">delete</i>Excluir Selecionados</button>                               
+                </div>
+                    
+                <div class="row">
+
+                                      
+                    <table class="responsive-table striped">
+                       <thead>
+                        <tr>
+                            <th><i class="material-icons">delete</i></th>
+                            <th><i class="material-icons">edit</i></th>
+                            <th>Produto</th>
+                            <th>Descrição</th>
+                            <th>Preço (R$)</th>
+                            <th>Categoria</th>
+                           
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="p in produtos | orderBy: '-dataCompra' ">
+                            <td><input type="checkbox" id="test{{$index}}" ng-model="p.selecionado" />
+                            <label for="test{{$index}}"></label></td>
+                            <td><a class="btn-floating btn-small waves-effect waves-light  light-green lighten-2" ng-click="atualizarProduto(p)"><i class="material-icons">edit</i></a></td>
+                            <td><img ng-src="public/images/{{p.imagem}}" alt="" width="80px"/></td>
+                            <td> {{p.descricao}}</td>
+                            <td>R${{p.preco}}</td>
+                            <td>{{p.categoria[0]}}</td>
+                            
+                            </tr>
+                        </tbody>
+                    </table>
+
+                  
+                </div>
+
+                
+                    
+            </div>
+
+        </div>
+
+        
+    </div>
+</div>
+
+   
+    
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+
+   
+    
+    <script>
+    
+    $(document).ready(function() {
+    $('select').material_select();
+
+
+   
+    });
+        
+    
+    var app = angular.module('App',[]);
+
+    app.directive('validNumber', function() {
+        return {
+          require: '?ngModel',
+          link: function(scope, element, attrs, ngModelCtrl) {
+            if(!ngModelCtrl) {
+              return; 
+            }
+  
+            ngModelCtrl.$parsers.push(function(val) {
+              if (angular.isUndefined(val)) {
+                  var val = '';
+              }
+              var clean = val.replace(/[^0-9\.]/g, '');
+              var decimalCheck = clean.split('.');
+  
+              if(!angular.isUndefined(decimalCheck[1])) {
+                  decimalCheck[1] = decimalCheck[1].slice(0,2);
+                  clean =decimalCheck[0] + '.' + decimalCheck[1];
+              }
+  
+              if (val !== clean) {
+                ngModelCtrl.$setViewValue(clean);
+                ngModelCtrl.$render();
+              }
+              return clean;
+            });
+  
+            element.bind('keypress', function(event) {
+              if(event.keyCode === 32) {
+                event.preventDefault();
+              }
+            });
+          }
+        };
+      });
+
+    app.controller('produtoCtrl',function($scope,$http){
+
+        
+        
+       
+        $scope.tituloApp = "Registro de Produtos";
+        $scope.produtos =[];
+        $scope.produto = {};
+       
+       
+
+        $scope.categorias = [
+            {            value: 'eletronicos',           label: 'Eletrônicos'       },
+            {            value: 'livros',                label: 'Livros'            },
+            {            value: 'musica',                label: 'Música'            },
+            {            value: 'outros',                label: 'Outros'            }
+                        
+            ]; 
+                
+        var carregarProdutos = function(){
+     
+            $http.get("http://localhost:3000/produtos")
+                .then(function(response) {
+            $scope.produtos = response.data;
+         });
+        }
+
+        carregarProdutos();
+
+
+        $scope.cleaner = function(){
+         $scope.produto = "";
+         document.getElementById("file-path").value = "";
+        };
+
+        $scope.atualizarProduto = function(produto){
+            //console.log(produto._id);
+            $http.get('http://localhost:3000/produto/'+produto._id).
+            then(function(response){
+                
+                if(response.data!=null){
+                    $scope.produto  = response.data;
+                }
+                //console.log(response.data);
+                return false;
+            });
+        };
+
+       
+       
+        $scope.submit = function(){
+
+                var formData = new FormData;
+
+                for(key in $scope.produto){
+
+                    console.log(key,'-------');
+                    console.log($scope.produto[key],'-------');
+                    
+
+                    formData.append(key,$scope.produto[key]);
+                }
+
+                //gettin' the file
+                var file = $('#file')[0].files[0];
+                console.log(file,'file....');
+                formData.append('image',file);
+
+                
+               $http.post('http://localhost:3000/produtos',formData,{
+
+                    transformRequest : angular.identity,
+                    headers:{
+                        'Content-Type': undefined
+                    }
+                }).then(function(res){
+
+                    $scope.item = res.data;
+                    carregarProdutos();
+                    
+                    $scope.cleaner();
+                    //$scope.produto ="";
+                    //document.getElementById("file-path").value = "";
+
+                    Materialize.toast('Registro Realizado', 4000);
+
+
+                });
+
+               
+
+        }
+
+
+
+        $scope.produtoSelecionados = function(produtos){
+        return produtos.some(function(p){
+           return p.selecionado;
+        });
+        };
+            
+
+       
+        $scope.removerSelecionados = function(p){
+            var item_excluidos = p.filter(function(produto){
+             if(produto.selecionado) return produto;
+            });
+
+            item_excluidos.forEach(function(produto) {
+               // console.log(produto._id);
+                $http.delete('http://localhost:3000/excluir/'+produto._id);
+            }, this);
+
+            carregarProdutos();
+
+        };
+
+       
+
+      
+       
+
+
+
+    });
+ 
+    
+    </script>
+
+   </body>
+
+</html>
