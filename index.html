@@ -29,6 +29,11 @@
                       max-width: 990px;
                   }
                 }
+                .edit-text{
+
+                    background: #fff9c4;
+
+                }
 
                 
        </style>
@@ -43,10 +48,11 @@
             <h4 class="white-text">{{tituloApp}}</h4>
              <div class="card-panel" >
                  <div class="row">
+                        
                     <!-- Begin Form -->
                     <form class="col s12" name="produtoForm">
-                                              
-                        <div class="input-field col s6">
+                      <h5 class="green-text" ng-class="{'edit-text': modo =='Editar'}">{{modo}}</h5>
+                      <div class="input-field col s6">
                                     <input id="produto.titulo" type="text" class="validate" ng-model ="produto.titulo" placeholder="Nome do Produto" required="required">
                                     <label class="active" for="produto.titulo">Nome do Produto:</label>
                        </div>
@@ -111,7 +117,7 @@
                    
                 
                 
-                {{produto}}
+                {{modo}}
             </div>
 
             <div class="card-panel">
@@ -128,6 +134,7 @@
                         <tr>
                             <th><i class="material-icons">delete</i></th>
                             <th><i class="material-icons">edit</i></th>
+                            <th>Imagem</th>
                             <th>Produto</th>
                             <th>Descrição</th>
                             <th>Preço (R$)</th>
@@ -141,6 +148,7 @@
                             <label for="test{{$index}}"></label></td>
                             <td><a class="btn-floating btn-small waves-effect waves-light  light-green lighten-2" ng-click="atualizarProduto(p)"><i class="material-icons">edit</i></a></td>
                             <td><img ng-src="public/images/{{p.imagem}}" alt="" width="80px"/></td>
+                            <td>{{p.titulo}}</td>
                             <td> {{p.descricao}}</td>
                             <td>R${{p.preco}}</td>
                             <td>{{p.categoria[0]}}</td>
@@ -226,6 +234,7 @@
         $scope.tituloApp = "Registro de Produtos";
         $scope.produtos =[];
         $scope.produto = {};
+        $scope.modo = "Novo";
        
        
 
@@ -250,6 +259,7 @@
 
         $scope.cleaner = function(){
          $scope.produto = "";
+         $scope.modo ="Novo";
          document.getElementById("file-path").value = "";
         };
 
@@ -260,8 +270,9 @@
                 
                 if(response.data!=null){
                     $scope.produto  = response.data;
+                    $scope.modo = 'Editar';
                 }
-                //console.log(response.data);
+               
                 return false;
             });
         };
@@ -272,40 +283,61 @@
 
                 var formData = new FormData;
 
+                //console.log("ver" + $scope.produto);
+
                 for(key in $scope.produto){
-
-                    console.log(key,'-------');
-                    console.log($scope.produto[key],'-------');
-                    
-
-                    formData.append(key,$scope.produto[key]);
+                  formData.append(key,$scope.produto[key]);
                 }
 
                 //gettin' the file
                 var file = $('#file')[0].files[0];
-                console.log(file,'file....');
+                //console.log(file,'file....');
                 formData.append('image',file);
 
                 
-               $http.post('http://localhost:3000/produtos',formData,{
+               if($scope.modo=='Novo'){
 
-                    transformRequest : angular.identity,
-                    headers:{
-                        'Content-Type': undefined
-                    }
-                }).then(function(res){
+                console.log('Novo ' +formData);
 
-                    $scope.item = res.data;
-                    carregarProdutos();
-                    
-                    $scope.cleaner();
-                    //$scope.produto ="";
-                    //document.getElementById("file-path").value = "";
+                $http.post('http://localhost:3000/produtos',formData,{
 
-                    Materialize.toast('Registro Realizado', 4000);
+                        transformRequest : angular.identity,
+                        headers:{
+                            'Content-Type': undefined
+                        }
+                        }).then(function(res){
+
+                        
+                        carregarProdutos();
+                        $scope.cleaner();
+                        Materialize.toast('Registro Realizado', 4000);
 
 
-                });
+                        });
+               }
+               else if($scope.modo =='Editar'){
+
+                            //console.log($scope.produto);  
+                            //$http.put('http://localhost:3000/produto/'+$scope.produto._id, 
+                            //JSON.stringify($scope.produto),{
+
+                            $http.put('http://localhost:3000/produto/'+$scope.produto._id, 
+                            formData,{
+                                                                                  
+                            transformRequest : angular.identity,
+                            headers:{
+                              
+                                'Content-Type': undefined
+                            }
+                            }).then(function(res){
+
+                                                     
+                            carregarProdutos();
+                            Materialize.toast('Registro Editado', 4000);
+                            
+                            });
+
+               }
 
                
 
